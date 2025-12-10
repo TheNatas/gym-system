@@ -6,14 +6,21 @@ type GetClassesByDayProps = GetListProps & {
   date?: Date;
 };
 
-export const getClassesByDay = async ({ date = new Date(), page = 1, pageSize = 10 } : GetClassesByDayProps = {}) : Promise<{ total: number; items: Class[] }> => {
+export const getClassesByDay = async ({
+    date = new Date(), 
+    page = 1, 
+    pageSize = 10 
+  } : GetClassesByDayProps = {}
+) : Promise<{ total: number; items: Class[] }> => {
   const classes = localStorage.getItem("classes") ? JSON.parse(localStorage.getItem("classes")!) : [];
 
   const filteredClasses = classes.filter((c: Class) => {
     const classDate = new Date(c.date);
-    return classDate.getFullYear() === date.getFullYear() &&
-           classDate.getMonth() === date.getMonth() &&
-           classDate.getDate() === date.getDate();
+    return (
+      classDate.getFullYear() === date.getFullYear() &&
+      classDate.getMonth() === date.getMonth() &&
+      classDate.getDate() === date.getDate()
+    );
   }).sort((a: Class, b: Class) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return {
@@ -60,17 +67,14 @@ export const addParticipant = async (classId: number, user: User): Promise<{ suc
   const gymClass = classes[classIndex];
   const currentParticipants = gymClass.users ? gymClass.users.length : 0;
 
-  // Rule: Class cannot exceed max capacity
   if (currentParticipants >= gymClass.numberOfParticipants) {
     return { success: false, message: "A aula está cheia" };
   }
 
-  // Rule: Class cannot receive new participants after finished
   if (gymClass.status === 'completed') {
     return { success: false, message: "A aula já foi concluída" };
   }
 
-  // Rule: New participants only after start if allowed
   const now = new Date();
   const classDate = new Date(gymClass.date);
   if (now > classDate && !gymClass.allowBookingAfterStart) {
@@ -79,7 +83,6 @@ export const addParticipant = async (classId: number, user: User): Promise<{ suc
 
   if (!gymClass.users) gymClass.users = [];
   
-  // Check if user is already in class
   if (gymClass.users.find((u: User) => u.id === user.id)) {
       return { success: false, message: "Usuário já cadastrado" };
   }

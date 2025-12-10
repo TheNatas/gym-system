@@ -15,7 +15,6 @@ import { User } from '@/app/api/modules/user/dtos/User';
 export default function ClassView() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
-  // User Search State for ClassDetails
   const { 
     users: usersList, 
     loading: loadingUsers, 
@@ -49,7 +48,6 @@ export default function ClassView() {
     loading
   } = useClasses({ selectedDate, pageSize: 10 });
 
-  // Reset user search when details open
   React.useEffect(() => {
     if (isDetailsOpen) {
       resetUserSearch();
