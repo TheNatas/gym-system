@@ -18,6 +18,11 @@ const ClassKindMap = {
   'Pilates': 'Pilates',
 };
 
+const ClassStatusMap : Record<Class['status'], string> = {
+  'open': 'Aberto',
+  'completed': 'Concluído',
+};
+
 const DEFAULT_START_HOUR = 6;
 const END_HOUR = 23;
 const HOUR_HEIGHT_PIXELS = 80;
@@ -183,7 +188,7 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
               {c.description} ({ClassKindMap[c.kind]})
             </Typography>
             <Typography variant="caption" display="block" noWrap>
-               {new Date(c.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {c.users?.length || 0}/{c.numberOfParticipants}
+               {new Date(c.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {c.users?.length || 0}/{c.numberOfParticipants} {ClassStatusMap[c.status]}
             </Typography>
           </Box>
         );
