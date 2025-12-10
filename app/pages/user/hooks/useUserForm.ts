@@ -17,7 +17,7 @@ const getUserSchema = (isEditing: boolean) => {
     city: z.string().max(40, 'O nome da cidade é muito longo').optional(),
     neighborhood: z.string().max(40, 'O nome do bairro é muito longo').optional(),
     address: z.string().max(100, 'O endereço é muito longo').optional(),
-    planKind: z.enum(['monthly', 'quarterly', 'annual']).optional(),
+    planKind: z.enum(['monthly', 'quarterly', 'annual'])
   });
 };
 
