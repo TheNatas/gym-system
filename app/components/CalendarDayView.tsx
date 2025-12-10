@@ -4,17 +4,23 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Class } from '@/app/api/modules/class/dtos/Class';
 
-interface CalendarDayViewProps {
+type CalendarDayViewProps = {
   classes: Class[];
   onClassClick: (id: number) => void;
   onLoadMore?: () => void;
   hasMore?: boolean;
   loading?: boolean;
-}
+};
+
+const ClassKindMap = {
+  'Cross': 'Cross',
+  'Functional': 'Funcional',
+  'Pilates': 'Pilates',
+};
 
 const DEFAULT_START_HOUR = 6;
 const END_HOUR = 23;
-const HOUR_HEIGHT = 80; // pixels per hour
+const HOUR_HEIGHT_PIXELS = 80;
 
 export default function CalendarDayView({ classes, onClassClick, onLoadMore, hasMore, loading }: CalendarDayViewProps) {
   const earliestClassHour = classes.length > 0 
@@ -44,8 +50,8 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
         ...c,
         start,
         end,
-        top: (start / 60) * HOUR_HEIGHT,
-        height: (60 / 60) * HOUR_HEIGHT - 4, // -4 for margin
+        top: (start / 60) * HOUR_HEIGHT_PIXELS,
+        height: (60 / 60) * HOUR_HEIGHT_PIXELS - 4, // -4 for margin
       };
     }).sort((a, b) => a.start - b.start);
 
@@ -131,10 +137,10 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
           key={hour}
           sx={{
             position: 'absolute',
-            top: (hour - startHour) * HOUR_HEIGHT,
+            top: (hour - startHour) * HOUR_HEIGHT_PIXELS,
             left: 0,
             right: 0,
-            height: HOUR_HEIGHT,
+            height: HOUR_HEIGHT_PIXELS,
             borderBottom: '1px solid #f0f0f0',
             display: 'flex',
             alignItems: 'start',
@@ -174,7 +180,7 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
             }}
           >
             <Typography variant="subtitle2" noWrap sx={{ fontWeight: 'bold' }}>
-              {c.description} ({c.kind})
+              {c.description} ({ClassKindMap[c.kind]})
             </Typography>
             <Typography variant="caption" display="block" noWrap>
                {new Date(c.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {c.users?.length || 0}/{c.numberOfParticipants}

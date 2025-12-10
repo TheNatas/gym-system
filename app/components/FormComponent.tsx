@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useForm, FieldValues, DefaultValues, Path } from 'react-hook-form';
+import { useForm, FieldValues, DefaultValues, Path, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ZodSchema } from 'zod';
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -47,7 +46,8 @@ export default function FormComponent<T extends FieldValues>({
     reset,
     formState: { errors },
   } = useForm<T>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema as any) as unknown as Resolver<T>,
     defaultValues,
   });
 

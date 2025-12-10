@@ -31,12 +31,12 @@ export function FormTextField<T extends FieldValues>({ name, control, label, typ
           label={label}
           type={type}
           value={
-            (type === 'date' || type === 'datetime-local') && value instanceof Date
-              ? toLocalISOString(value, type === 'date')
+            (type === 'date' || type === 'datetime-local') && (value as unknown) instanceof Date
+              ? toLocalISOString(value as Date, type === 'date')
               : value ?? ''
           }
           onChange={(e) => {
-            let val: any = e.target.value;
+            let val: string | number | Date = e.target.value;
             if (type === 'number') {
               val = Number(val);
             } else if (type === 'date') {
