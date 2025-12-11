@@ -8,7 +8,7 @@ type UserContextType = {
   users: User[];
   total: number;
   loading: boolean;
-  fetchUsers: (params?: { page?: number; search?: string; append?: boolean; pageSize?: number } | number) => Promise<unknown>;
+  fetchUsers: (params?: { page?: number; search?: string; append?: boolean; pageSize?: number } | number) => Promise<{ items: User[]; total: number }>;
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
