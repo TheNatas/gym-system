@@ -43,7 +43,7 @@ const userFormFields: FormField<User | NewUser>[] = [
 type UseUserFormProps = {
   users: User[];
   setUsers: Dispatch<SetStateAction<User[]>>;
-  fetchUsers: (params?: { page?: number; search?: string; append?: boolean } | number) => Promise<{ total: number; items: User[]; }>;
+  fetchUsers: (params?: { page?: number; search?: string; append?: boolean; pageSize?: number; silent?: boolean } | number) => Promise<{ total: number; items: User[]; }>;
 }
 
 export const useUserForm = ({ users, setUsers, fetchUsers } : UseUserFormProps) => {

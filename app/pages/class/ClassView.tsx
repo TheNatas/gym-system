@@ -12,6 +12,18 @@ import { useClasses } from './hooks/useClasses';
 import { useUserSearch } from './hooks/useUserSearch';
 import { User } from '@/app/api/modules/user/dtos/User';
 import { useClassContext } from '@/app/context/ClassContext';
+import { Class } from '@/app/api/modules/class/dtos/Class';
+
+const ClassKindMap = {
+  'Cross': 'Cross',
+  'Functional': 'Funcional',
+  'Pilates': 'Pilates',
+};
+
+const ClassStatusMap : Record<Class['status'], string> = {
+  'open': 'Aberto',
+  'completed': 'Concluído',
+};
 
 export default function ClassView() {
   const { selectedDate, setSelectedDate } = useClassContext();
@@ -102,7 +114,14 @@ export default function ClassView() {
       </Box>
 
       <CalendarDayView
-        classes={classes}
+        events={classes.map(c => ({
+          id: c.id,
+          name: `${c.description} (${ClassKindMap[c.kind]})`,
+          start: new Date(c.date),
+          end: new Date(new Date(c.date).getTime() + 60 * 60 * 1000), // assuming 1 hour duration
+          description: `${c.users?.length || 0}/${c.numberOfParticipants} ${ClassStatusMap[c.status]}`,
+          status: c.status,
+        }))}
         onClassClick={handleClassClick}
         onLoadMore={loadMore}
         hasMore={hasMore}

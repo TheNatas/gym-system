@@ -3,7 +3,7 @@ import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-interface FormCheckboxProps<T extends FieldValues> {
+type FormCheckboxProps<T extends FieldValues> = {
   name: Path<T>;
   control: Control<T>;
   label: string;
@@ -20,7 +20,7 @@ export function FormCheckbox<T extends FieldValues>({ name, control, label }: Fo
             <Checkbox
               checked={!!value}
               onChange={(e) => onChange(e.target.checked)}
-              inputRef={ref}
+              slotProps={{ input: { ref } }}
             />
           }
           label={label}

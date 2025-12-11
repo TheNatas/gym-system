@@ -1,5 +1,5 @@
 import { GetListProps } from "../../types/GetListProps";
-import { randomDelay } from "../../utils/delay";
+import { randomDelay } from "../../delay";
 import { User } from "./dtos/User"
 
 export const getUsers = async (

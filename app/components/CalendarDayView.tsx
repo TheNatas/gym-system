@@ -1,41 +1,43 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Class } from '@/app/api/modules/class/dtos/Class';
+
+type Event = {
+  id: number;
+  name: string;
+  start: Date;
+  end: Date;
+  description: string;
+  status: 'open' | 'completed';
+}
 
 type CalendarDayViewProps = {
-  classes: Class[];
+  events: Event[];
   onClassClick: (id: number) => void;
   onLoadMore?: () => void;
   hasMore?: boolean;
   loading?: boolean;
 };
 
-const ClassKindMap = {
-  'Cross': 'Cross',
-  'Functional': 'Funcional',
-  'Pilates': 'Pilates',
-};
-
-const ClassStatusMap : Record<Class['status'], string> = {
-  'open': 'Aberto',
-  'completed': 'Concluído',
-};
-
 const DEFAULT_START_HOUR = 6;
 const END_HOUR = 23;
 const HOUR_HEIGHT_PIXELS = 80;
 
-export default function CalendarDayView({ classes, onClassClick, onLoadMore, hasMore, loading }: CalendarDayViewProps) {
-  const earliestClassHour = classes.length > 0 
-    ? Math.min(...classes.map(c => new Date(c.date).getHours())) 
+export default function CalendarDayView(
+  { events, onClassClick, onLoadMore, hasMore, loading }: CalendarDayViewProps
+) {
+  const earliestEventHour = events.length > 0 
+    ? Math.min(...events.map(c => new Date(c.start).getHours())) 
     : DEFAULT_START_HOUR;
-  const startHour = Math.min(DEFAULT_START_HOUR, earliestClassHour);
+  const startHour = Math.min(DEFAULT_START_HOUR, earliestEventHour);
 
-  const hours = Array.from({ length: END_HOUR - startHour + 1 }, (_, i) => startHour + i);
+  const hours = Array.from(
+    { length: END_HOUR - startHour + 1 }, 
+    (_, i) => startHour + i
+  );
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
@@ -46,38 +48,38 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
     }
   };
 
-  const processedClasses = React.useMemo(() => {
-    const events = classes.map(c => {
-      const d = new Date(c.date);
-      const start = (d.getHours() - startHour) * 60 + d.getMinutes();
-      const end = start + 60; // always 60 mins duration
+  const processedEvents = useMemo(() => {
+    const formattedEvents = events.map(event => {
+      console.log(event);
+      const startMinutes = (new Date(event.start).getHours() - startHour) * 60 + new Date(event.start).getMinutes();
+      const endMinutes = (new Date(event.end).getHours() - startHour) * 60 + new Date(event.end).getMinutes();
       return {
-        ...c,
-        start,
-        end,
-        top: (start / 60) * HOUR_HEIGHT_PIXELS,
+        ...event,
+        startMinutes: startMinutes,
+        endMinutes: endMinutes,
+        top: (startMinutes / 60) * HOUR_HEIGHT_PIXELS,
         height: (60 / 60) * HOUR_HEIGHT_PIXELS - 4,
       };
-    }).sort((a, b) => a.start - b.start);
+    }).sort((a, b) => a.startMinutes - b.startMinutes);
 
-    type EventType = typeof events[0];
+    type EventType = typeof formattedEvents[0];
 
     const clusters: EventType[][] = [];
     let currentCluster: EventType[] = [];
     let clusterEnd = -1;
 
-    events.forEach(event => {
+    formattedEvents.forEach(event => {
       if (currentCluster.length === 0) {
         currentCluster.push(event);
-        clusterEnd = event.end;
+        clusterEnd = event.endMinutes;
       } else {
-        if (event.start < clusterEnd) {
+        if (event.startMinutes < clusterEnd) {
           currentCluster.push(event);
-          clusterEnd = Math.max(clusterEnd, event.end);
+          clusterEnd = Math.max(clusterEnd, event.endMinutes);
         } else {
           clusters.push(currentCluster);
           currentCluster = [event];
-          clusterEnd = event.end;
+          clusterEnd = event.endMinutes;
         }
       }
     });
@@ -91,15 +93,15 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
       const clusterEventsWithCol = cluster.map(event => {
         let colIndex = -1;
         for (let i = 0; i < columns.length; i++) {
-          if (columns[i] <= event.start) {
+          if (columns[i] <= event.startMinutes) {
             colIndex = i;
-            columns[i] = event.end;
+            columns[i] = event.endMinutes;
             break;
           }
         }
         if (colIndex === -1) {
           colIndex = columns.length;
-          columns.push(event.end);
+          columns.push(event.endMinutes);
         }
         return { ...event, colIndex };
       });
@@ -122,9 +124,9 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
     });
 
     return result;
-  }, [classes, startHour]);
+  }, [events, startHour]);
 
-  if (loading && classes.length === 0) {
+  if (loading && events.length === 0) {
     return (
       <Paper 
         sx={{ 
@@ -189,7 +191,7 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
         mt: 2 
       }}
     >
-      {loading && classes.length > 0 && (
+      {loading && events.length > 0 && (
         <Box sx={{ position: 'sticky', top: 10, zIndex: 100, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
            <Paper elevation={3} sx={{ borderRadius: '50%', p: 0.5, display: 'flex', bgcolor: 'background.paper' }}>
              <CircularProgress size={20} />
@@ -220,17 +222,18 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
         </Box>
       ))}
 
-      {processedClasses.map((c) => {
-        if (c.top < 0) return null;
+      {processedEvents.map((event) => {
+        console.log('event processed', event);
+        if (event.top < 0) return null;
 
         return (
           <Box
-            key={c.id}
-            onClick={() => onClassClick(c.id)}
+            key={event.id}
+            onClick={() => onClassClick(event.id)}
             sx={{
-              ...c.style,
-              backgroundColor: c.status === 'open' ? 'primary.light' : 'grey.300',
-              color: c.status === 'open' ? 'primary.contrastText' : 'text.primary',
+              ...event.style,
+              backgroundColor: event.status === 'open' ? 'primary.light' : 'grey.300',
+              color: event.status === 'open' ? 'primary.contrastText' : 'text.primary',
               borderRadius: 1,
               p: 1,
               cursor: 'pointer',
@@ -245,10 +248,10 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
             }}
           >
             <Typography variant="subtitle2" noWrap sx={{ fontWeight: 'bold' }}>
-              {c.description} ({ClassKindMap[c.kind]})
+              {event.name}
             </Typography>
             <Typography variant="caption" display="block" noWrap>
-               {new Date(c.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {c.users?.length || 0}/{c.numberOfParticipants} {ClassStatusMap[c.status]}
+               {new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {event.description}
             </Typography>
           </Box>
         );

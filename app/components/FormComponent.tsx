@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, FieldValues, DefaultValues, Path, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ZodSchema } from 'zod';
+import { ZodType } from 'zod';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
@@ -14,18 +14,18 @@ import { FormCheckbox } from './inputs/FormCheckbox';
 import { FormSelect } from './inputs/FormSelect';
 import { FormTextField } from './inputs/FormTextField';
 
-export interface FormField<T extends FieldValues> {
+export type FormField<T extends FieldValues> = {
   name: Path<T>;
   label: string;
   type?: 'text' | 'number' | 'date' | 'datetime-local' | 'select' | 'checkbox';
   options?: { value: string | number; label: string }[];
 }
 
-interface FormComponentProps<T extends FieldValues> {
+type FormComponentProps<T extends FieldValues> = {
   open: boolean;
   onClose: () => void;
   title: string;
-  schema: ZodSchema<T>;
+  schema: ZodType<T>;
   defaultValues?: DefaultValues<T>;
   onSubmit: (data: T) => void;
   fields: FormField<T>[];
@@ -51,8 +51,7 @@ export default function FormComponent<T extends FieldValues>({
     defaultValues,
   });
 
-  // Reset form when defaultValues change or dialog opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       reset(defaultValues);
     }

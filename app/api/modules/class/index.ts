@@ -1,6 +1,6 @@
 import { GetListProps } from "../../types/GetListProps";
 import { User } from "../user/dtos/User";
-import { randomDelay } from "../../utils/delay";
+import { randomDelay } from "../../delay";
 import { Class } from "./dtos/Class"
 
 type GetClassesByDayProps = GetListProps & {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Controller, Control, FieldValues, Path, FieldErrors } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 
-interface FormTextFieldProps<T extends FieldValues> {
+type FormTextFieldProps<T extends FieldValues> = {
   name: Path<T>;
   control: Control<T>;
   label: string;
@@ -54,11 +54,11 @@ export function FormTextField<T extends FieldValues>({ name, control, label, typ
           error={!!errors[name]}
           helperText={errors[name]?.message as string}
           fullWidth
-          InputLabelProps={
+          slotProps={{ inputLabel: 
             type === 'date' || type === 'datetime-local'
               ? { shrink: true }
               : undefined
-          }
+          }}
         />
       )}
     />

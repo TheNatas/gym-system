@@ -7,7 +7,6 @@ import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -28,13 +27,20 @@ type ListComponentProps = {
   pageSize?: number;
   onPageChange?: (newPage: number) => void;
   loading?: boolean;
+  fullLoading?: boolean;
+  silentLoading?: boolean;
 }
 
-export default function ListComponent({ title, items, onItemClick, total, page, pageSize = 10, onPageChange, loading }: ListComponentProps) {
+export default function ListComponent(
+  { title, items, onItemClick, total, page, pageSize = 10, onPageChange, loading, fullLoading, silentLoading }: ListComponentProps
+) {
   const showPagination = total !== undefined && items.length !== total;
   const totalPages = total ? Math.ceil(total / pageSize) : 1;
 
-  if (loading && items.length === 0) {
+  const showSkeleton = fullLoading !== undefined ? fullLoading : (loading && items.length === 0);
+  const showSpinner = silentLoading !== undefined ? silentLoading : (loading && items.length > 0);
+
+  if (showSkeleton) {
     return (
       <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2 }}>
         {title && (
@@ -60,7 +66,7 @@ export default function ListComponent({ title, items, onItemClick, total, page, 
 
   return (
     <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2, position: 'relative' }}>
-      {loading && items.length > 0 && (
+      {showSpinner && (
         <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
           <CircularProgress size={20} />
         </Box>
@@ -95,7 +101,7 @@ export default function ListComponent({ title, items, onItemClick, total, page, 
                   onPageChange?.(val);
                 }
               }}
-              inputProps={{ min: 1, max: totalPages }}
+              slotProps={{ htmlInput: { min: 1, max: totalPages } }}
               fullWidth
             />
           </Box>

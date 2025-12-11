@@ -3,7 +3,7 @@ import { Controller, Control, FieldValues, Path, FieldErrors } from 'react-hook-
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
-interface FormSelectProps<T extends FieldValues> {
+type FormSelectProps<T extends FieldValues> = {
   name: Path<T>;
   control: Control<T>;
   label: string;
