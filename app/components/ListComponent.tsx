@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
@@ -58,7 +59,12 @@ export default function ListComponent({ title, items, onItemClick, total, page, 
   }
 
   return (
-    <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2 }}>
+    <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2, position: 'relative' }}>
+      {loading && items.length > 0 && (
+        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
+          <CircularProgress size={20} />
+        </Box>
+      )}
       {title && (
         <Typography variant="h6" component="div" sx={{ mb: 2 }}>
           {title}

@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Class } from '@/app/api/modules/class/dtos/Class';
 
 type CalendarDayViewProps = {
@@ -188,6 +189,14 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
         mt: 2 
       }}
     >
+      {loading && classes.length > 0 && (
+        <Box sx={{ position: 'sticky', top: 10, zIndex: 100, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+           <Paper elevation={3} sx={{ borderRadius: '50%', p: 0.5, display: 'flex', bgcolor: 'background.paper' }}>
+             <CircularProgress size={20} />
+           </Paper>
+        </Box>
+      )}
+
       {hours.map((hour) => (
         <Box
           key={hour}
