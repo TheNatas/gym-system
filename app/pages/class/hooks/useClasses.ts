@@ -5,6 +5,7 @@ import { User } from "@/app/api/modules/user/dtos/User";
 import { FormField } from "@/app/components/FormComponent";
 import { useCallback, useEffect, useState, useRef } from "react";
 import z from "zod";
+import { useClassContext } from "@/app/context/ClassContext";
 
 const getClassSchema = (isEditingClass: boolean) => {
   return z.object({
@@ -44,48 +45,30 @@ const classFormFields: FormField<Class | NewClass>[] = [
   { name: 'allowBookingAfterStart', label: 'Permitir Agendamento Após Início', type: 'checkbox' },
 ];
 
-export const useClasses = ({ selectedDate, pageSize = 10 }: { selectedDate: Date, pageSize?: number }) => {
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
+  const { 
+    classes, 
+    total, 
+    page, 
+    hasMore, 
+    loading, 
+    selectedDate, 
+    fetchClasses, 
+    setClasses, 
+    setPage, 
+    selectedClass, 
+    setSelectedClass 
+  } = useClassContext();
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | undefined>(undefined);
-  const [selectedClass, setSelectedClass] = useState<Class | undefined>(undefined);
-  const selectedClassRef = useRef<Class | undefined>(undefined);
 
   useEffect(() => {
-    selectedClassRef.current = selectedClass;
-  }, [selectedClass]);
-
-  const fetchClasses = useCallback(async (pageToFetch: number = 1, size: number = pageSize, append: boolean = false) => {
-    setLoading(true);
-    try {
-      const localDate = selectedDate;
-      const fetchedData = await getClassesByDay({ date: localDate, page: pageToFetch, pageSize: size });
-      
-      setClasses(prev => append ? [...prev, ...fetchedData.items] : fetchedData.items);
-      setTotal(fetchedData.total);
-      setHasMore(fetchedData.items.length === size);
-      
-      // Update selected class if it's open
-      const currentSelected = selectedClassRef.current;
-      if (currentSelected) {
-          const updated = fetchedData.items.find(c => c.id === currentSelected.id);
-          if (updated) setSelectedClass(updated);
-      }
-    } finally {
-      setLoading(false);
+    if (classes.length === 0) {
+        fetchClasses(1, pageSize, false);
     }
-  }, [selectedDate, pageSize]);
-
-  useEffect(() => {
-    setPage(1);
-    fetchClasses(1, pageSize, false);
-  }, [selectedDate, fetchClasses, pageSize]);
+  }, [fetchClasses, pageSize, classes.length]);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
@@ -93,7 +76,7 @@ export const useClasses = ({ selectedDate, pageSize = 10 }: { selectedDate: Date
       setPage(nextPage);
       fetchClasses(nextPage, pageSize, true);
     }
-  }, [loading, hasMore, page, pageSize, fetchClasses]);
+  }, [loading, hasMore, page, pageSize, fetchClasses, setPage]);
 
   const handleCreateClass = () => {
     setEditingClass(undefined);
@@ -134,7 +117,7 @@ export const useClasses = ({ selectedDate, pageSize = 10 }: { selectedDate: Date
 
     try {
       await saveClass(classToSave);
-      await fetchClasses();
+      await fetchClasses(1, pageSize, false);
     } catch (error) {
       console.error("Failed to save class", error);
       setClasses(previousClasses);
@@ -230,6 +213,7 @@ export const useClasses = ({ selectedDate, pageSize = 10 }: { selectedDate: Date
     handleFinishClass,
     loadMore,
     hasMore,
-    loading
+    loading,
+    selectedDate
   };
 }

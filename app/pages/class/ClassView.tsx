@@ -11,9 +11,10 @@ import ClassDetails from './ClassDetails';
 import { useClasses } from './hooks/useClasses';
 import { useUserSearch } from './hooks/useUserSearch';
 import { User } from '@/app/api/modules/user/dtos/User';
+import { useClassContext } from '@/app/context/ClassContext';
 
 export default function ClassView() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { selectedDate, setSelectedDate } = useClassContext();
   
   const { 
     users: usersList, 
@@ -46,7 +47,7 @@ export default function ClassView() {
     loadMore,
     hasMore,
     loading
-  } = useClasses({ selectedDate, pageSize: 10 });
+  } = useClasses({ pageSize: 10 });
 
   React.useEffect(() => {
     if (isDetailsOpen) {
