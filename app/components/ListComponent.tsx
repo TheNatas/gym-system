@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
+import Skeleton from '@mui/material/Skeleton';
 
 type SimpleListItem = {
   id: string | number;
@@ -25,11 +26,36 @@ type ListComponentProps = {
   page?: number;
   pageSize?: number;
   onPageChange?: (newPage: number) => void;
+  loading?: boolean;
 }
 
-export default function ListComponent({ title, items, onItemClick, total, page, pageSize = 10, onPageChange }: ListComponentProps) {
+export default function ListComponent({ title, items, onItemClick, total, page, pageSize = 10, onPageChange, loading }: ListComponentProps) {
   const showPagination = total !== undefined && items.length !== total;
   const totalPages = total ? Math.ceil(total / pageSize) : 1;
+
+  if (loading && items.length === 0) {
+    return (
+      <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2 }}>
+        {title && (
+          <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+            {title}
+          </Typography>
+        )}
+        <List>
+          {Array.from(new Array(5)).map((_, index) => (
+            <ListItem key={index} disablePadding divider>
+              <ListItemButton>
+                <ListItemText
+                  primary={<Skeleton animation="wave" height={24} width="60%" />}
+                  secondary={<Skeleton animation="wave" height={20} width="40%" />}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+    );
+  }
 
   return (
     <Paper elevation={2} sx={{ maxWidth: 600, margin: 'auto', p: 2 }}>

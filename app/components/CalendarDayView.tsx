@@ -2,6 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import Skeleton from '@mui/material/Skeleton';
 import { Class } from '@/app/api/modules/class/dtos/Class';
 
 type CalendarDayViewProps = {
@@ -121,6 +122,60 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
 
     return result;
   }, [classes, startHour]);
+
+  if (loading && classes.length === 0) {
+    return (
+      <Paper 
+        sx={{ 
+          position: 'relative', 
+          height: 'calc(100vh - 250px)',
+          overflowY: 'hidden', 
+          border: '1px solid #e0e0e0', 
+          mt: 2 
+        }}
+      >
+        {hours.map((hour) => (
+          <Box
+            key={hour}
+            sx={{
+              position: 'absolute',
+              top: (hour - startHour) * HOUR_HEIGHT_PIXELS,
+              left: 0,
+              right: 0,
+              height: HOUR_HEIGHT_PIXELS,
+              borderBottom: '1px solid #f0f0f0',
+              display: 'flex',
+              alignItems: 'start',
+              pl: 1,
+              boxSizing: 'border-box'
+            }}
+          >
+            <Typography variant="caption" color="text.secondary" sx={{ width: 50, pt: 1 }}>
+              {`${hour.toString().padStart(2, '0')}:00`}
+            </Typography>
+            <Box sx={{ borderLeft: '1px solid #f0f0f0', height: '100%', flex: 1 }} />
+          </Box>
+        ))}
+        
+        {[0, 2, 4].map((offset) => (
+             <Box
+                key={offset}
+                sx={{
+                    position: 'absolute',
+                    top: (offset + 1) * HOUR_HEIGHT_PIXELS + 10,
+                    left: 70,
+                    right: 20,
+                    height: HOUR_HEIGHT_PIXELS - 20,
+                    borderRadius: 1,
+                    zIndex: 1,
+                }}
+             >
+                <Skeleton variant="rectangular" height="100%" animation="wave" sx={{ borderRadius: 1 }} />
+             </Box>
+        ))}
+      </Paper>
+    );
+  }
 
   return (
     <Paper 

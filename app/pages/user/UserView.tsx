@@ -9,7 +9,7 @@ import { useUserForm } from './hooks/useUserForm';
 import { useState } from 'react';
 
 export default function UserView() {
-  const { total, users, fetchUsers, setUsers } = useUsersList();
+  const { total, users, fetchUsers, setUsers, loading } = useUsersList();
   const { 
     isFormOpen, 
     setIsFormOpen, 
@@ -53,6 +53,7 @@ export default function UserView() {
         total={total}
         page={page}
         onPageChange={handlePageChange}
+        loading={loading}
       />
 
       <FormComponent
