@@ -55,7 +55,8 @@ export default function FormComponent<T extends FieldValues>({
     if (open) {
       reset(defaultValues);
     }
-  }, [open, defaultValues, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, reset]);
 
   const handleFormSubmit = (data: T) => {
     onSubmit(data);
