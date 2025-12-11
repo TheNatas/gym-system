@@ -14,6 +14,8 @@ export const getUsers = async (
     users = users.filter((u: User) => u.name.toLowerCase().includes(lowerSearch));
   }
 
+  users.sort((a: User, b: User) => a.name.localeCompare(b.name));
+
   return {
     total: users.length, 
     items: users.slice((page - 1) * pageSize, page * pageSize)

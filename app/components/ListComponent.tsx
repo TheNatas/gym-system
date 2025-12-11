@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 
 type SimpleListItem = {
@@ -94,22 +94,24 @@ export default function ListComponent(
         ))}
       </List>
       {showPagination && (
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-          <Box sx={{ width: 100 }}>
-            <TextField
-              label="Page"
-              type="number"
-              value={currentPage}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val >= 1 && val <= totalPages) {
-                  onPageChange?.(val);
-                }
-              }}
-              slotProps={{ htmlInput: { min: 1, max: totalPages } }}
-              fullWidth
-            />
-          </Box>
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+          <Button
+            variant="outlined"
+            disabled={currentPage <= 1}
+            onClick={() => onPageChange?.(currentPage - 1)}
+          >
+            Previous
+          </Button>
+          <Typography variant="body2">
+            Page {currentPage} of {totalPages}
+          </Typography>
+          <Button
+            variant="outlined"
+            disabled={currentPage >= totalPages}
+            onClick={() => onPageChange?.(currentPage + 1)}
+          >
+            Next
+          </Button>
         </Box>
       )}
     </Paper>
