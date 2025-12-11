@@ -1,9 +1,11 @@
 import { GetListProps } from "../../types/GetListProps";
+import { randomDelay } from "../../utils/delay";
 import { User } from "./dtos/User"
 
 export const getUsers = async (
   { page = 1, pageSize = 10, search = "" } : GetListProps
 ) : Promise<{ total: number; items: User[] }> => {
+  await randomDelay();
   const lsUsers = localStorage.getItem("users");
   let users = lsUsers ? JSON.parse(lsUsers) : [];
 
@@ -19,6 +21,7 @@ export const getUsers = async (
 };
 
 export const saveUser = async (user: User) : Promise<User> => {
+  await randomDelay();
   if (!user.id) {
     user.id = Date.now();
   

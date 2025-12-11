@@ -1,5 +1,6 @@
 import { GetListProps } from "../../types/GetListProps";
 import { User } from "../user/dtos/User";
+import { randomDelay } from "../../utils/delay";
 import { Class } from "./dtos/Class"
 
 type GetClassesByDayProps = GetListProps & {
@@ -12,6 +13,7 @@ export const getClassesByDay = async ({
     pageSize = 10 
   } : GetClassesByDayProps = {}
 ) : Promise<{ total: number; items: Class[] }> => {
+  await randomDelay();
   const classes = localStorage.getItem("classes") ? JSON.parse(localStorage.getItem("classes")!) : [];
 
   const filteredClasses = classes.filter((c: Class) => {
@@ -30,6 +32,7 @@ export const getClassesByDay = async ({
 };
 
 export const saveClass = async (gymClass: Class) : Promise<Class> => {
+  await randomDelay();
   if (!gymClass.id) {
     gymClass.id = Date.now();
     gymClass.users = [];
@@ -52,13 +55,14 @@ export const saveClass = async (gymClass: Class) : Promise<Class> => {
 
   return gymClass;
 }
-
 export const getClass = async (id: number) : Promise<Class | undefined> => {
+  await randomDelay();
   const classes = localStorage.getItem("classes") ? JSON.parse(localStorage.getItem("classes")!) : [];
   return classes.find((c: Class) => c.id === id);
 }
 
 export const addParticipant = async (classId: number, user: User): Promise<{ success: boolean; message?: string }> => {
+  await randomDelay();
   const classes = localStorage.getItem("classes") ? JSON.parse(localStorage.getItem("classes")!) : [];
   const classIndex = classes.findIndex((c: Class) => c.id === classId);
 
@@ -95,6 +99,7 @@ export const addParticipant = async (classId: number, user: User): Promise<{ suc
 };
 
 export const removeParticipant = async (classId: number, userId: number): Promise<void> => {
+  await randomDelay();
   const classes = localStorage.getItem("classes") ? JSON.parse(localStorage.getItem("classes")!) : [];
   const classIndex = classes.findIndex((c: Class) => c.id === classId);
 
