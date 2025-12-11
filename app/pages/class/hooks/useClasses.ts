@@ -1,9 +1,9 @@
-import { getClassesByDay, saveClass, addParticipant, removeParticipant, finishClass } from "@/app/api/modules/class";
+import { saveClass, addParticipant, removeParticipant, finishClass } from "@/app/api/modules/class";
 import { Class } from "@/app/api/modules/class/dtos/Class";
 import { NewClass } from "@/app/api/modules/class/dtos/NewClass";
 import { User } from "@/app/api/modules/user/dtos/User";
 import { FormField } from "@/app/components/FormComponent";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import z from "zod";
 import { useClassContext } from "@/app/context/ClassContext";
 
@@ -52,6 +52,8 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
     page, 
     hasMore, 
     loading, 
+    fullLoading,
+    silentLoading,
     selectedDate, 
     fetchClasses, 
     setClasses, 
@@ -66,7 +68,7 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
 
   useEffect(() => {
     if (classes.length === 0) {
-        fetchClasses(1, pageSize, false);
+        fetchClasses({ page: 1, size: pageSize, append: false, silent: false });
     }
   }, [fetchClasses, pageSize, classes.length]);
 
@@ -74,7 +76,7 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
     if (!loading && hasMore) {
       const nextPage = page + 1;
       setPage(nextPage);
-      fetchClasses(nextPage, pageSize, true);
+      fetchClasses({ page: nextPage, size: pageSize, append: true, silent: true });
     }
   }, [loading, hasMore, page, pageSize, fetchClasses, setPage]);
 
@@ -117,7 +119,7 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
 
     try {
       await saveClass(classToSave);
-      await fetchClasses(1, pageSize, false);
+      await fetchClasses({ page: 1, size: pageSize, append: false });
     } catch (error) {
       console.error("Failed to save class", error);
       setClasses(previousClasses);
@@ -214,6 +216,8 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
     loadMore,
     hasMore,
     loading,
+    fullLoading,
+    silentLoading,
     selectedDate
   };
 }

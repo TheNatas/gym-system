@@ -20,6 +20,8 @@ type CalendarDayViewProps = {
   onLoadMore?: () => void;
   hasMore?: boolean;
   loading?: boolean;
+  fullLoading?: boolean;
+  silentLoading?: boolean;
 };
 
 const DEFAULT_START_HOUR = 6;
@@ -27,7 +29,7 @@ const END_HOUR = 23;
 const HOUR_HEIGHT_PIXELS = 80;
 
 export default function CalendarDayView(
-  { events, onClassClick, onLoadMore, hasMore, loading }: CalendarDayViewProps
+  { events, onClassClick, onLoadMore, hasMore, loading, fullLoading, silentLoading }: CalendarDayViewProps
 ) {
   const earliestEventHour = events.length > 0 
     ? Math.min(...events.map(c => new Date(c.start).getHours())) 
@@ -126,7 +128,10 @@ export default function CalendarDayView(
     return result;
   }, [events, startHour]);
 
-  if (loading && events.length === 0) {
+  const showSkeleton = fullLoading !== undefined ? fullLoading : (loading && events.length === 0);
+  const showSpinner = silentLoading !== undefined ? silentLoading : (loading && events.length > 0);
+
+  if (showSkeleton) {
     return (
       <Paper 
         sx={{ 
@@ -191,7 +196,7 @@ export default function CalendarDayView(
         mt: 2 
       }}
     >
-      {loading && events.length > 0 && (
+      {showSpinner && (
         <Box sx={{ position: 'sticky', top: 10, zIndex: 100, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
            <Paper elevation={3} sx={{ borderRadius: '50%', p: 0.5, display: 'flex', bgcolor: 'background.paper' }}>
              <CircularProgress size={20} />

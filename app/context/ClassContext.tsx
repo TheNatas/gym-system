@@ -10,9 +10,11 @@ type ClassContextType = {
   page: number;
   hasMore: boolean;
   loading: boolean;
+  fullLoading: boolean;
+  silentLoading: boolean;
   selectedDate: Date;
   setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
-  fetchClasses: (pageToFetch?: number, size?: number, append?: boolean) => Promise<void>;
+  fetchClasses: (params?: { page?: number; size?: number; append?: boolean; silent?: boolean }) => Promise<void>;
   setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   setHasMore: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,20 +29,29 @@ export function ClassProvider({ children }: { children: ReactNode }) {
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [fullLoading, setFullLoading] = useState(false);
+  const [silentLoading, setSilentLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedClass, setSelectedClass] = useState<Class | undefined>(undefined);
   const selectedClassRef = useRef<Class | undefined>(undefined);
+
+  const loading = fullLoading || silentLoading;
 
   useEffect(() => {
     selectedClassRef.current = selectedClass;
   }, [selectedClass]);
 
-  const fetchClasses = useCallback(async (pageToFetch: number = 1, size: number = 10, append: boolean = false) => {
-    setLoading(true);
+  const fetchClasses = useCallback(async (params: { page?: number; size?: number; append?: boolean; silent?: boolean } = {}) => {
+    const { page = 1, size = 10, append = false, silent = false } = params;
+
+    if (silent) {
+      setSilentLoading(true);
+    } else {
+      setFullLoading(true);
+    }
     try {
       const localDate = selectedDate;
-      const fetchedData = await getClassesByDay({ date: localDate, page: pageToFetch, pageSize: size });
+      const fetchedData = await getClassesByDay({ date: localDate, page, pageSize: size });
       
       setClasses(prev => append ? [...prev, ...fetchedData.items] : fetchedData.items);
       setTotal(fetchedData.total);
@@ -53,7 +64,11 @@ export function ClassProvider({ children }: { children: ReactNode }) {
           if (updated) setSelectedClass(updated);
       }
     } finally {
-      setLoading(false);
+      if (silent) {
+        setSilentLoading(false);
+      } else {
+        setFullLoading(false);
+      }
     }
   }, [selectedDate]);
 
@@ -64,6 +79,8 @@ export function ClassProvider({ children }: { children: ReactNode }) {
       page, 
       hasMore, 
       loading, 
+      fullLoading,
+      silentLoading,
       selectedDate, 
       setSelectedDate, 
       fetchClasses, 

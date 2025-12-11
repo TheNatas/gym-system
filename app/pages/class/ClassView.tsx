@@ -58,7 +58,9 @@ export default function ClassView() {
     handleFinishClass,
     loadMore,
     hasMore,
-    loading
+    loading,
+    fullLoading,
+    silentLoading
   } = useClasses({ pageSize: 10 });
 
   React.useEffect(() => {
@@ -126,6 +128,8 @@ export default function ClassView() {
         onLoadMore={loadMore}
         hasMore={hasMore}
         loading={loading}
+        fullLoading={fullLoading}
+        silentLoading={silentLoading}
       />
 
       <FormComponent
