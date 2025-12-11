@@ -37,32 +37,29 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
-    if (scrollHeight - scrollTop <= clientHeight + 100) { // Load when near bottom
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
       if (hasMore && !loading && onLoadMore) {
         onLoadMore();
       }
     }
   };
 
-  // Process classes to handle overlaps
   const processedClasses = React.useMemo(() => {
-    // 1. Map to events with start/end in minutes
     const events = classes.map(c => {
       const d = new Date(c.date);
       const start = (d.getHours() - startHour) * 60 + d.getMinutes();
-      const end = start + 60; // Assume 60 mins duration
+      const end = start + 60; // always 60 mins duration
       return {
         ...c,
         start,
         end,
         top: (start / 60) * HOUR_HEIGHT_PIXELS,
-        height: (60 / 60) * HOUR_HEIGHT_PIXELS - 4, // -4 for margin
+        height: (60 / 60) * HOUR_HEIGHT_PIXELS - 4,
       };
     }).sort((a, b) => a.start - b.start);
 
     type EventType = typeof events[0];
 
-    // 2. Group into clusters
     const clusters: EventType[][] = [];
     let currentCluster: EventType[] = [];
     let clusterEnd = -1;
@@ -84,11 +81,10 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
     });
     if (currentCluster.length > 0) clusters.push(currentCluster);
 
-    // 3. Process each cluster to assign columns
     const result: (EventType & { style: React.CSSProperties })[] = [];
 
     clusters.forEach(cluster => {
-      const columns: number[] = []; // stores end time of last event in each column
+      const columns: number[] = [];
       
       const clusterEventsWithCol = cluster.map(event => {
         let colIndex = -1;
@@ -131,7 +127,7 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
       onScroll={handleScroll}
       sx={{ 
         position: 'relative', 
-        height: 'calc(100vh - 250px)', // Fixed height for scrolling
+        height: 'calc(100vh - 250px)',
         overflowY: 'auto', 
         border: '1px solid #e0e0e0', 
         mt: 2 
@@ -161,7 +157,7 @@ export default function CalendarDayView({ classes, onClassClick, onLoadMore, has
       ))}
 
       {processedClasses.map((c) => {
-        if (c.top < 0) return null; // Skip classes before start time (shouldn't happen with dynamic startHour)
+        if (c.top < 0) return null;
 
         return (
           <Box
