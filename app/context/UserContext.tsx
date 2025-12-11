@@ -12,6 +12,11 @@ type UserContextType = {
   silentLoading: boolean;
   fetchUsers: (params?: { page?: number; search?: string; append?: boolean; pageSize?: number; silent?: boolean } | number) => Promise<{ items: User[]; total: number }>;
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+  
+  usersForSelect: User[];
+  loadingUsersForSelect: boolean;
+  fetchUsersForSelect: (params?: { page?: number; search?: string; append?: boolean; pageSize?: number }) => Promise<{ items: User[]; total: number }>;
+  setUsersForSelect: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -21,6 +26,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [total, setTotal] = useState<number>(0);
   const [fullLoading, setFullLoading] = useState(false);
   const [silentLoading, setSilentLoading] = useState(false);
+
+  const [usersForSelect, setUsersForSelect] = useState<User[]>([]);
+  const [loadingUsersForSelect, setLoadingUsersForSelect] = useState(false);
 
   const loading = fullLoading || silentLoading;
 
@@ -35,7 +43,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
     try {
       const fetchedUsersResponse = await getUsers({ page, pageSize, search });
-      setUsers(prev => append ? [...prev, ...fetchedUsersResponse.items] : fetchedUsersResponse.items);
+      setUsers(prev => {
+        if (append) {
+          const userMap = new Map(prev.map((u) => [u.id, u]));
+          fetchedUsersResponse.items.forEach((u) => {
+            userMap.set(u.id, u);
+          });
+          return Array.from(userMap.values());
+        }
+        return fetchedUsersResponse.items;
+      });
       setTotal(fetchedUsersResponse.total);
       return fetchedUsersResponse;
     } finally {
@@ -47,8 +64,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const fetchSearchUsers = useCallback(async (params: { page?: number; search?: string; append?: boolean; pageSize?: number } = {}) => {
+    const { page = 1, search = '', append = false, pageSize = 10 } = params;
+
+    setLoadingUsersForSelect(true);
+    try {
+      const fetchedUsersResponse = await getUsers({ page, pageSize, search });
+      setUsersForSelect(prev => {
+        if (append) {
+          const userMap = new Map(prev.map((u) => [u.id, u]));
+          fetchedUsersResponse.items.forEach((u) => {
+            userMap.set(u.id, u);
+          });
+          return Array.from(userMap.values());
+        }
+        return fetchedUsersResponse.items;
+      });
+      return fetchedUsersResponse;
+    } finally {
+      setLoadingUsersForSelect(false);
+    }
+  }, []);
+
   return (
-    <UserContext.Provider value={{ users, total, loading, fullLoading, silentLoading, fetchUsers, setUsers }}>
+    <UserContext.Provider value={{ 
+      users, total, loading, fullLoading, silentLoading, fetchUsers, setUsers,
+      usersForSelect: usersForSelect, loadingUsersForSelect: loadingUsersForSelect, fetchUsersForSelect: fetchSearchUsers, setUsersForSelect: setUsersForSelect
+    }}>
       {children}
     </UserContext.Provider>
   );

@@ -34,11 +34,16 @@ type ListComponentProps = {
 export default function ListComponent(
   { title, items, onItemClick, total, page, pageSize = 10, onPageChange, loading, fullLoading, silentLoading }: ListComponentProps
 ) {
-  const showPagination = total !== undefined && items.length !== total;
+  const currentPage = page || 1;
+  const showPagination = total !== undefined && total > pageSize;
   const totalPages = total ? Math.ceil(total / pageSize) : 1;
 
-  const showSkeleton = fullLoading !== undefined ? fullLoading : (loading && items.length === 0);
-  const showSpinner = silentLoading !== undefined ? silentLoading : (loading && items.length > 0);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const visibleItems = items.slice(startIndex, endIndex);
+
+  const showSkeleton = fullLoading || (loading && visibleItems.length === 0);
+  const showSpinner = silentLoading || (loading && visibleItems.length > 0);
 
   if (showSkeleton) {
     return (
@@ -77,7 +82,7 @@ export default function ListComponent(
         </Typography>
       )}
       <List>
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <ListItem key={item.id} disablePadding divider>
              <ListItemButton onClick={() => onItemClick && onItemClick(item.id)}>
               <ListItemText
@@ -94,7 +99,7 @@ export default function ListComponent(
             <TextField
               label="Page"
               type="number"
-              value={page || 1}
+              value={currentPage}
               onChange={(e) => {
                 const val = Number(e.target.value);
                 if (val >= 1 && val <= totalPages) {

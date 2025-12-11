@@ -1,22 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useUsersList } from '../../user/hooks/useUsersList';
+import { useUserContext } from '@/app/context/UserContext';
 
 export const useUserSearch = (pageSize = 20) => {
-  const { users, loading, fetchUsers } = useUsersList({ autoFetch: false, pageSize });
+  const { usersForSelect: users, loadingUsersForSelect: loading, fetchUsersForSelect: fetchSearchUsers } = useUserContext();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchValue, setSearchValue] = useState('');
 
   const loadUsers = useCallback(async (currentPage: number, search: string, append: boolean) => {
     try {
-      const response = await fetchUsers({ page: currentPage, search, append });
+      const response = await fetchSearchUsers({ page: currentPage, search, append, pageSize });
       if (response) {
         setHasMore(response.items.length === pageSize);
       }
     } catch (error) {
       console.error("Failed to load users", error);
     }
-  }, [fetchUsers, pageSize]);
+  }, [fetchSearchUsers, pageSize]);
 
   // Debounce search
   useEffect(() => {

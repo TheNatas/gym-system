@@ -25,7 +25,11 @@ export default function UserView() {
 
   const handlePageChange = async (newPage : number) => {
     setPage(newPage);
-    await fetchUsers({ page: newPage });
+    await fetchUsers({ 
+      page: newPage, 
+      append: true, 
+      silent: users.length > 0 
+    });
   };
 
   const listItems = users.map((user) => ({
