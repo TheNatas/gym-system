@@ -79,7 +79,7 @@ export const useUserForm = ({ users, setUsers, fetchUsers } : UseUserFormProps) 
 
     try {
       await saveUser(userToSave);
-      await fetchUsers();
+      await fetchUsers({ silent: true });
     } catch (error) {
       console.error("Failed to save user", error);
       setUsers(previousUsers);

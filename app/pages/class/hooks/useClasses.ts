@@ -119,7 +119,7 @@ export const useClasses = ({ pageSize = 10 }: { pageSize?: number } = {}) => {
 
     try {
       await saveClass(classToSave);
-      await fetchClasses({ page: 1, size: pageSize, append: false });
+      await fetchClasses({ page: 1, size: pageSize, append: false, silent: true });
     } catch (error) {
       console.error("Failed to save class", error);
       setClasses(previousClasses);
